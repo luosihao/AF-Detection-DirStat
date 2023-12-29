@@ -8,25 +8,16 @@ Created on Sun Nov 21 22:05:07 2021
 import torch.nn as nn
 import torch
 from S_pool import Beran,Gine_G
-import torch.nn.parallel as parallel
-import scipy.linalg as L
 import math
 import torch.nn.functional as F
 import numpy as np
 from Beran import beran10
-def comb(n,k):
-    return math.factorial(n) // math.factorial(k) // math.factorial(n - k)
-def dim_p_k(p,k):
-    dpk=comb(p+k-3,p-2)+comb(p+k-2,p-2)
-    return dpk
+
 class MLP(nn.Module):
         def __init__(self, input_size, common_size):
             super(MLP, self).__init__()
             self.linear = nn.Sequential(
                 nn.Linear(input_size, input_size//2),
-# =============================================================================
-#                 nn.Dropout(p=0.1),
-# =============================================================================
                 nn.ReLU(inplace=True),
                 nn.Linear(input_size//2  , common_size)
             )
@@ -48,12 +39,7 @@ class My_net(nn.Module):
         self.divide=4
         self.mode=mode
         self.kernel_size=list(range(2,max_kernel_size))
-# =============================================================================
-#         self.kernel_size=[max_kernel_size]
-# =============================================================================
-
         self._EPSILON=1e-7
-
         self.disturb2=nn.Parameter(torch.zeros(len(self.kernel_size)) )
         if mode=='gine':
             self.gine=Gine_G(self.kernel_size)
@@ -119,22 +105,7 @@ class My_net(nn.Module):
 
 
         return F.log_softmax(out,dim=-1)
-# =============================================================================
-#         return out
-# =============================================================================
-        
-        
-if __name__ == '__main__':
-    import os
-    from torchsummary import summary
-    from thop import profile
-    import util
-    os.environ['CUDA_VISIBLE_DEVICES'] = "0" 
 
-    model_ft=My_net(num_classes=2,max_kernel_size=10, max_degree=10)
-# =============================================================================
-#     flop,para=profile(model_ft.cuda(),torch.ones( 2,1, 100).cuda())
-#     print("%.2fM"%(flop/1e6),"%.2fM"%(para/1e6))
-#     print(util.get_parameter_number(model_ft))
-# =============================================================================
-    summary(model_ft.cuda(), ( 1, 100),device="cuda")
+        
+        
+
