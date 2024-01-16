@@ -8,7 +8,7 @@ Welcome to the repository for our novel End-to-End Atrial Fibrillation Detection
 
 ## Input Format
 
-The expected input for the model is a PyTorch tensor with the shape `(batch_size, 1, time_series_length)`, where:
+The expected input for the model is an RRI (normalized with frequency, converted to a numerical value in seconds) PyTorch tensor with the shape (batch_size, 1, time_series_length), where:
 
 - `batch_size` is the number of samples in your batch.
 - `1` represents a single-channel input, as typically required for time-series data.
