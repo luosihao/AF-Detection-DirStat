@@ -6,6 +6,8 @@ Welcome to the repository for our novel End-to-End Atrial Fibrillation Detection
 
 `My_e2e.py` contains a PyTorch model designed for processing RRI.
 
+Note: We have provided an example script for training a model, named `training_model_example.py`. You will need to modify the file path and the method of data reading to accommodate your own dataset.
+
 ## Input Format
 
 The expected input for the model is an RRI (normalized with frequency, converted to a numerical value in seconds) PyTorch tensor with the shape (batch_size, 1, time_series_length), where:
