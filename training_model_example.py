@@ -15,7 +15,7 @@ import pandas as pd
 import util
 from sklearn.model_selection import KFold
 from torch.utils.tensorboard import SummaryWriter   
-writer = SummaryWriter('/home/csluo/UVAF/log_weight_new/')
+writer = SummaryWriter('PATH2log'+/log/')
 
 os.environ['CUDA_VISIBLE_DEVICES'] = "0" 
 mode='beran'
@@ -24,7 +24,7 @@ fs=1000
 for mode in ['beran']:
     for d_name in ['UVAF']:
        
-        save_root_path='PATH2SAVE_WEIGHTS_'+mode+'/'+d_name
+        save_root_path='PATH2SAVE_WEIGHTS'+mode+'/'+d_name
         util.Mkdir(save_root_path)
         batch_size=10240
         num_epochs=100
@@ -51,12 +51,14 @@ for mode in ['beran']:
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         criterion = nn.NLLLoss()
         np.random.seed(1)
+        kf = KFold( n_splits=5, shuffle=True, random_state=1)
+        indexs=list(range(Ntrain))
+        
         excel_epoch = pd.ExcelWriter(save_root_path+"/epoch_loss.xlsx", mode='w', engine='openpyxl')
         excel_best=pd.ExcelWriter(save_root_path+"/best_confusion.xlsx", mode='w', engine='openpyxl')
         excel_last=pd.ExcelWriter(save_root_path+"/last_confusion.xlsx", mode='w', engine='openpyxl')  
            
-        kf = KFold( n_splits=5, shuffle=True, random_state=1)
-        indexs=list(range(Ntrain))
+       
         for k,(idxtrain,idxval) in enumerate(kf.split(indexs)):
              model =My_net(2,  max_kernel_size=9+1, max_degree=10,mode=mode) 
              if k==0:
