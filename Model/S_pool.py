@@ -7,14 +7,11 @@ Created on Fri Nov 19 15:44:33 2021
 """
 
 import torch
-
 import torch.nn as nn
 import math
 
-
 class Beran(object):
 # interative generate gegenbauer poly, inspired by https://github.com/Orcuslc/OrthNet/tree/master/orthnet/poly    
-
     def __init__(self, x,p ,degree):
         # we simplified the computation by only taking the values of the upper triangular matrix
         self.x=x[:,torch.triu(torch.ones(x.shape[-1],x.shape[-1],dtype=torch.bool),diagonal=1).cuda() ]
@@ -40,15 +37,11 @@ class Beran(object):
     
     def h_z2(self):
          batch=self.x.size(0)
-
-
          if self.alpha==0:
              temp=torch.acos(torch.clamp(self.x, -1 + self.epsilon, 1 - self.epsilon))
              sum_save=torch.zeros((batch),device=temp.device)
 # =============================================================================
 #              for i in range(1, self.degree+1):
-# =============================================================================
-# =============================================================================
 #                   sum_save+=(2*torch.cos(i*temp)).sum(-1)
 # =============================================================================
              # during inference, above can be subsitude into below without looping
@@ -59,10 +52,6 @@ class Beran(object):
 
              return total
 
-         
-   
-
-
 class Gine_G(nn.Module):
     def __init__(self,p ):
         super(Gine_G, self).__init__()
@@ -72,20 +61,14 @@ class Gine_G(nn.Module):
         self.gamma_alpha=[math.pow(math.gamma(j+1/2)/math.gamma(j+1),2) for i,j in enumerate(self.alpha)]
         self.pi=math.pi
     def forward(self,x):
-
         n=[i.shape[-1] for i in x]
         bool_matrixs=[torch.triu(torch.ones(i,i,dtype=torch.bool),diagonal=1).cuda() for i in n]
         up_triangle=[j[:,bool_matrixs[i]] for i,j in enumerate(x)]
-
         sai=[torch.acos(torch.clamp(i, -1 + self.epsilon, 1 - self.epsilon)) for i in up_triangle]
-
         Gn=[n[i]/2-(self.p[i]-1)/2/n[i]*self.gamma_alpha[i]*(torch.sin(j).sum(-1,keepdim=True)) for i,j in enumerate(sai)]
         Gn_tensor=torch.cat(Gn,dim=-1)
-
         An=[n[i]/4-1/n[i]/self.pi*j.sum(-1,keepdim=True) for i,j in enumerate(sai)]
         An_tensor=torch.cat(An,dim=-1)
-     
-
         return Gn_tensor+An_tensor
 
         
