@@ -19,49 +19,33 @@ os.environ['CUDA_VISIBLE_DEVICES'] = "0"
 mode='jupp'
 root_dir = "/data/csluo/alldatabase/data/"#
 fs=1000
-for mode in ['jupp']:
+for mode in ['beran']:
     for d_name in ['UVAF']:
        
-        
         save_root_path='/home/csluo/UVAF/new_model_weight_'+mode+'/'+d_name
         util.Mkdir(save_root_path)
-    
         batch_size=10240
         num_epochs=100
-      
         Data=[]
         Label=[]
-     
         #load data
         d = torch.load(os.path.join(root_dir,d_name+'.pt'))
-
-       
         for i in range(len(d)):
             data_inner=d[i]
             id_data=data_inner['id']
             label=data_inner['label']
             datainner=data_inner['rr']
-
-            
-
             Data.append(datainner/fs)
             label[label!=1]=0
-            Label.append(label)
-      
-        
-               
+            Label.append(label)        
         
         # =============================================================================
         # classes = ['A', 'N', 'O', '~']
         # =============================================================================
         classes = ['N', 'A']
-        
         classes_ind=range(len(classes)-1)
         classes_dict=dict(zip(classes,classes_ind))
         Ntrain = len(Data) # number of recordings on training set
-         
-        
-         
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         criterion = nn.NLLLoss()
         np.random.seed(1)
@@ -76,14 +60,10 @@ for mode in ['jupp']:
              if k==0:
                  print(util.get_parameter_number(model))
              model_inner=model.to(device)  
-        # =============================================================================
-        #  
-        # =============================================================================
              optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()))
-        
-             print("Cross-validation run %d"%(k+1))        
+             print("Cross-validation run %d"%(k+1))   
             
-             # since it is inter-patient ,so, each fold have to load separate records
+             # since it is inter-patient ,so, you have to load separate records in each fold
              ytrain=[Label[i] for i in idxtrain]
              ytrain=np.concatenate(ytrain)
              xtrain=[Data[i] for i in idxtrain]
@@ -98,9 +78,7 @@ for mode in ['jupp']:
              ytrain=torch.tensor(ytrain,dtype=torch.long)
              xval=torch.tensor(xval,dtype=torch.float32).unsqueeze(1)
              yval=torch.tensor(yval,dtype=torch.long)
-             
 
-             
              torch_dataset = DATA.TensorDataset(xtrain, ytrain)
              loader = DATA.DataLoader(
                  dataset=torch_dataset,      
@@ -123,14 +101,10 @@ for mode in ['jupp']:
              val_acc_history = []
              best_loss =0
              for epoch in range(num_epochs):
-
-                 
                  temp=[]
                  for phase in ['train', 'val']:
                     if phase == 'train':
-                        model_inner.train()  # Set model to training mode
-                     
-        
+                        model_inner.train()  # Set model to training mode 
                     else:
                         model_inner.eval()   # Set model to evaluate mode
                     with tqdm(loader_dict[phase], unit="batch", ncols=50, disable=True) as tepoch:
@@ -143,10 +117,7 @@ for mode in ['jupp']:
                          
                          for inputs, labels in tepoch:
                              inputs = inputs.to(device)
-                             labels = labels.to(device)
-                              
-                             # zero the parameter gradients
-                             
+                             labels = labels.to(device)                              
                              if phase == 'train':
                                  optimizer.zero_grad()
                                  outputs= model_inner(inputs)
@@ -161,11 +132,9 @@ for mode in ['jupp']:
                              else:
                                  with torch.no_grad():
                                      outputs= model_inner(inputs)
-                                     loss = criterion(outputs, labels)
-
-                             
+                                     loss = criterion(outputs, labels)        
                              _, preds = torch.max(outputs,-1)
-                                # statistics
+                             
                              count+=labels.shape[0]
                              labels_cpu = labels.data.cpu().numpy()                   
                              preds_cpu = preds.detach().cpu().numpy()
@@ -181,7 +150,6 @@ for mode in ['jupp']:
                     epoch_acc = running_corrects /count
                     temp.append([epoch_acc,epoch_loss,f1[1]])
                     cm=confusion_matrix(label_save,pred_save,labels=[0,1])
-                    
 
                     if  phase == 'val':
                         list_l=temp[0]+temp[1]
@@ -198,8 +166,7 @@ for mode in ['jupp']:
                             df2 = pd.DataFrame(cm,columns=['0','1'])
 
                             df2.to_excel(excel_best, sheet_name='fold{}'.format(k))
-                            
-                           
+                             
                         if epoch==num_epochs-1:
                              torch.save(model.state_dict(), save_root_path+'/fold :{}_last'.format(k)+'.pth')
                              df2 = pd.DataFrame(cm,columns=['0','1'])
