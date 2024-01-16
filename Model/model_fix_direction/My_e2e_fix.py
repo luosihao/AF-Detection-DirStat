@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Nov 21 22:05:07 2021
-
-@author: csluo
-"""
 import torch.nn as nn
 import torch
 from S_pool_fix import Beran
