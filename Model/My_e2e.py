@@ -83,7 +83,6 @@ class My_net(nn.Module):
 # =============================================================================
 
             #more efficient only for max_degree=10；
-            #and  (/(j.shape[-1]*(j.shape[-1]-1))) might be more suitable for processing different RRI lengths. 
             #The use of /j.shape[-1] is specifically to align with the definition of the Sobolev test statistics, 
             #aiming to normalize the variance of the coefficients of each spherical harmonics to 1 when the samples are
             #uniformly distributed on the sphere, thereby ensuring that the asymptotic null distribution conforms to
