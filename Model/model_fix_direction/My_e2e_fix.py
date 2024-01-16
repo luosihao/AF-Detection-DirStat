@@ -103,7 +103,7 @@ class My_net(nn.Module):
     def forward(self, x):
 
         #unify fix direction 
-        norm_disturb=[i/i.norm(dim=0,keepdim=True) for i in self.bias_list]
+        norm_direction=[i/i.norm(dim=0,keepdim=True) for i in self.bias_list]
 
         # general poincare
         x1_dis=[(i(x).permute(0,2,1).view(x.shape[0],-1, self.kernel_size[j],self.conv_num)+self._EPSILON).permute(0,1,3,2) for j,i in enumerate(self.conv)]
@@ -112,6 +112,9 @@ class My_net(nn.Module):
         x1_norm=[i.norm(dim=-1,keepdim=True) for i in x1_dis]
         
 
+        #The radius is mapped to a value between 0 and 1 through a straightforward linear transformation coupled with
+        #a sigmoid activation, a technique possibly best suited for RRI signals. For other types of signals, 
+        #this mapping process can be adjusted to utilize a multilayer perceptron (MLP).  
         radius_mapped=[ sq(i).permute(0,3,2,1).reshape(-1,i.shape[1]) 
                     for i,sq in zip(x1_norm, self.simple_radius)]
 
@@ -120,7 +123,7 @@ class My_net(nn.Module):
 
         
         x1_inner=[torch.einsum('ndsc,cs->nsd', i,j).reshape(-1,i.shape[1])
-                  for i,j in zip(norm_x1,norm_disturb)]#batch,divide,time
+                  for i,j in zip(norm_x1,norm_direction)]#batch,divide,time
         
 
 
@@ -129,14 +132,14 @@ class My_net(nn.Module):
             
      
             
-        #mapped radius as weights, then using sum of radius to normalize
-        G=[Beran(j,radius_mapped[i], self.kernel_size[i], self.max_degree).h_z2()/(radius_mapped[i].sum(-1,keepdim=True) +1e-5)# j.shape[-1]
+        #using sum of radius to normalize
+        G=[Beran(j,radius_mapped[i], self.kernel_size[i], self.max_degree).h_z2()/(radius_mapped[i].sum(-1,keepdim=True) +1e-5)# 
            for i,j in enumerate(x1_inner)] # /n
 
 
         all_G2=torch.stack(G,dim=1)
 
-        #self.weight_a_ can be regarded as the weighting for each degree of the Gegenbauer polynomials. 
+        #self.weight_a can be regarded as the weighting for each degree of the Gegenbauer coef. 
         #It corresponds to high-dimensional zonal spherical convolution. 
         #For the three-dimensional case, you can refer to 
         #Figure 4 of  "Learning so (3) equivariant representations with spherical cnns" 2018: 52-68.
@@ -146,10 +149,10 @@ class My_net(nn.Module):
         
         allG_Rho=allG_Rho.sum(dim=-2).view(-1,self.divide*len(self.kernel_size)*self.sphere_conv)
         
-        # frequency or degree=0, equal to the mean of the mapped radius
+        # the mean of the mapped radius,  equal to frequency=0 or degree=0 of Gegenbauer coef
         radius_mean=torch.stack([i.mean(-1)for i in radius_mapped],dim=1).view(-1,self.divide*len(self.kernel_size))
         
-        # concat frequency 0 and other
+        # concat  the mean of the mapped radius and other  Gegenbauer coef as features
         allG_Rho=torch.cat([radius_mean,allG_Rho],dim=1)
         
         allG_Rho=self.first_bn(allG_Rho)
