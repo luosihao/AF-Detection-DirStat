@@ -1,4 +1,4 @@
 - `My_e2e.py`: The main model.
 - `Beran.py`: A faster version of `S_Pool.py` when `degree=10`.
 - `S_pool.py`: The pooling script.
-- `model_fix_direction/`: This directory contains the modified model versions with fixed directions. This model has more parameters but are faster, making them suitable for longer RRI sequences (length n). It have a complexity of O(n). We do not provide the training weights for this model. However, if you set `batch_size` to 20000+ and use a 2080Ti GPU, it takes about 1 minute to train an epoch on the complete UVAF dataset.
+- `model_fix_direction/`: This directory contains the modified model versions with fixed directions. This model has more parameters but are faster, making them suitable for longer RRI sequences (length n). It have a complexity of O(n). We do not provide the training weights for this model. However, if you set `batch_size` to 20000+ and use a 2080Ti GPU, it takes about 3 minute to train an epoch on the complete UVAF dataset.
