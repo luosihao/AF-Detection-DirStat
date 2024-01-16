@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Dec 19 23:46:29 2023
-
-@author: csluo
-"""
 import torch
 epsilon_1=1e-7
 #using precalculated coef, r : weight for radius
