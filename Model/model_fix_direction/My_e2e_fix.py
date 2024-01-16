@@ -54,7 +54,7 @@ class My_net(nn.Module):
         self.conv=nn.ModuleList([nn.Conv1d(in_channels=1,
                                            out_channels=i* self.conv_num,
                                            kernel_size=i+1,bias=False,dilation=1) for j,i in enumerate(self.kernel_size)]  )
-        # rarius map
+        # list of rarius mapping function
         self.simple_radius=nn.ModuleList([map_radius(self.conv_num,self.divide_inner) for i in self.kernel_size]  )
         self.max_degree=max_degree
         # weight on each degree of gegenbauer coef, It corresponds to high-dimensional zonal spherical convolution. 
@@ -96,10 +96,10 @@ class My_net(nn.Module):
         allG_Rho=all_G2.view(-1,self.divide*len(self.kernel_size),self.max_degree,1)*self.weight_a/self.weight_a.norm(dim=1,keepdim=True)
         allG_Rho=allG_Rho.sum(dim=-2).view(-1,self.divide*len(self.kernel_size)*self.sphere_conv)
         
-        # the mean of the mapped radius,  equal to frequency=0 or degree=0 of Gegenbauer coef
+        # the mean of the mapped radius, equal to frequency=0 or degree=0 of Gegenbauer coef
         radius_mean=torch.stack([i.mean(-1)for i in radius_mapped],dim=1).view(-1,self.divide*len(self.kernel_size))
         
-        # concat  the mean of the mapped radius and other  Gegenbauer coef as features
+        # concatenation of the mean of the mapped radius and other Gegenbauer coef as features
         allG_Rho=torch.cat([radius_mean,allG_Rho],dim=1)
         
         allG_Rho=self.first_bn(allG_Rho)
