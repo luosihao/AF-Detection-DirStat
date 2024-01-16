@@ -40,6 +40,7 @@ class My_net(nn.Module):
         self.mode=mode
         self.kernel_size=list(range(2,max_kernel_size))
         self._EPSILON=1e-7
+        #learnable scalar
         self.disturb2=nn.Parameter(torch.zeros(len(self.kernel_size)) )
         if mode=='gine':
             self.gine=Gine_G(self.kernel_size)
@@ -49,16 +50,11 @@ class My_net(nn.Module):
             feature_len=self.divide*len(self.kernel_size)
         self.fl=feature_len
         self.MLP=MLP(feature_len,num_classes)   
-
         self.first_bn = nn.BatchNorm1d(feature_len,momentum=0.1)
-
-        
         self.conv=nn.ModuleList([nn.Conv1d(in_channels=1,
                                            out_channels=i* self.divide,
                                            kernel_size=i,bias=False) for i in self.kernel_size]  )
-
         self.arange_list=torch.arange( self.divide)/self.divide 
-
         self.max_degree=max_degree
 
 
@@ -79,8 +75,6 @@ class My_net(nn.Module):
         # sobolev statistcs 
         if self.mode=='gine':
             all_G2=self.gine(x1_inner)
-            
-     
         if self.mode=='beran':
             #slow but adaptive for custom degree
 # =============================================================================
@@ -95,20 +89,12 @@ class My_net(nn.Module):
             #uniformly distributed on the sphere, thereby ensuring that the asymptotic null distribution conforms to
             #a chi-squared distribution.
             G2=[beran10(j,self.kernel_size[i]).sum(1)/j.shape[-1]  for i,j in enumerate(x1_inner) ] 
-
             all_G2=torch.stack(G2,dim=1)
 
-
-
-
         allG_Rho=all_G2.view(-1, self.fl)
-        
         #batch norm
         allG_Rho=self.first_bn(allG_Rho)     
-        
         out= self.MLP(allG_Rho)
-
-
         return F.log_softmax(out,dim=-1)
 
         
