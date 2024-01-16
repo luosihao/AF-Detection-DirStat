@@ -19,11 +19,11 @@ from torch.utils.tensorboard import SummaryWriter
 writer = SummaryWriter('PATH2log'+/log/')
 os.environ['CUDA_VISIBLE_DEVICES'] = "0" 
 mode='beran'
-root_dir = "PATH2DATA/data/"#
+root_dir = "PATH2DATA/alldata/"
 fs=1000
 
 for mode in ['beran','gine']:
-    for d_name in ['UVAF']:
+    for d_name in ['AFDB','LTAFDB','SIMU','CPSC2021','C2017','MIMICIII']:
         save_root_path='PATH2SAVE_WEIGHTS'+mode+'/'+d_name
         util.Mkdir(save_root_path)
         batch_size=10240
@@ -42,7 +42,7 @@ for mode in ['beran','gine']:
             Label.append(label)        
         
         # =============================================================================
-        # classes = ['A', 'N', 'O', '~']
+        # classes = ['A', 'N', 'O', '~'] #JUST FOR C2017
         # =============================================================================
         classes = ['N', 'A']
         classes_ind=range(len(classes)-1)
