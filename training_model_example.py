@@ -1,3 +1,5 @@
+# Note: An example script for training a model.
+# You will need to modify the file path and the method of data reading to accommodate your own dataset.
 import os
 from scipy import io
 import csv
@@ -16,13 +18,13 @@ from torch.utils.tensorboard import SummaryWriter
 writer = SummaryWriter('/home/csluo/UVAF/log_weight_new/')
 
 os.environ['CUDA_VISIBLE_DEVICES'] = "0" 
-mode='jupp'
-root_dir = "/data/csluo/alldatabase/data/"#
+mode='beran'
+root_dir = "PATH2DATA/data/"#
 fs=1000
 for mode in ['beran']:
     for d_name in ['UVAF']:
        
-        save_root_path='/home/csluo/UVAF/new_model_weight_'+mode+'/'+d_name
+        save_root_path='PATH2SAVE_WEIGHTS_'+mode+'/'+d_name
         util.Mkdir(save_root_path)
         batch_size=10240
         num_epochs=100
@@ -56,7 +58,7 @@ for mode in ['beran']:
         kf = KFold( n_splits=5, shuffle=True, random_state=1)
         indexs=list(range(Ntrain))
         for k,(idxtrain,idxval) in enumerate(kf.split(indexs)):
-             model =My_net(2,  max_kernel_size=10, max_degree=10,mode=mode) 
+             model =My_net(2,  max_kernel_size=9+1, max_degree=10,mode=mode) 
              if k==0:
                  print(util.get_parameter_number(model))
              model_inner=model.to(device)  
