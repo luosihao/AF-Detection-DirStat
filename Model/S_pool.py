@@ -16,6 +16,7 @@ class Beran(object):
 # interative generate gegenbauer poly, inspired by https://github.com/Orcuslc/OrthNet/tree/master/orthnet/poly    
 
     def __init__(self, x,p ,degree):
+        # we simplified the computation by only taking the values of the upper triangular matrix
         self.x=x[:,torch.triu(torch.ones(x.shape[-1],x.shape[-1],dtype=torch.bool),diagonal=1).cuda() ]
         self.alpha=p/2-1
         self.initial = [lambda x: torch.ones_like(x), lambda x: x*2*self.alpha]
