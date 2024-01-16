@@ -30,4 +30,4 @@ Directional statistics-inspired end-to-end atrial fibrillation detection model b
 Expert Systems with Applications, 123112. https://doi.org/10.1016/j.eswa.2023.123112
 ```
 
-For any further questions or issues, please open an issue in this repository, and we will get back to you as soon as possible.
+For any further questions or issues, please open an issue in this repository or contact us via email at [luosicheng945@gmail.com](mailto:luosicheng945@gmail.com), and we will get back to you as soon as possible.
