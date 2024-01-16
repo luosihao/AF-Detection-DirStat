@@ -9,6 +9,7 @@ import torch
 epsilon_1=1e-7
 #using precalculated coef, r : weight for radius
 def beran10(x,p,r=1):
+    #we simplified the computation by only taking the values of the upper triangular matrix
     x=x[:,torch.triu(torch.ones(x.shape[1],x.shape[1],dtype=torch.bool),diagonal=1).cuda() ]
     if type(r)!=int:
         r=r[:,torch.triu(torch.ones(r.shape[1],r.shape[1],dtype=torch.bool),diagonal=1).cuda() ]
