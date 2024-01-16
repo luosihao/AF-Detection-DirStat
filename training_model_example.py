@@ -14,16 +14,16 @@ from sklearn.metrics import f1_score,confusion_matrix
 import pandas as pd
 import util
 from sklearn.model_selection import KFold
+
 from torch.utils.tensorboard import SummaryWriter   
 writer = SummaryWriter('PATH2log'+/log/')
-
 os.environ['CUDA_VISIBLE_DEVICES'] = "0" 
 mode='beran'
 root_dir = "PATH2DATA/data/"#
 fs=1000
-for mode in ['beran']:
+
+for mode in ['beran','gine']:
     for d_name in ['UVAF']:
-       
         save_root_path='PATH2SAVE_WEIGHTS'+mode+'/'+d_name
         util.Mkdir(save_root_path)
         batch_size=10240
