@@ -88,7 +88,12 @@ class My_net(nn.Module):
 #             all_G2=torch.stack(G,dim=1)
 # =============================================================================
 
-            #more efficient only for max_degree=10
+            #more efficient only for max_degree=10；
+            #and  (/(j.shape[-1]*(j.shape[-1]-1))) might be more suitable for processing different RRI lengths. 
+            #The use of /j.shape[-1] is specifically to align with the definition of the Sobolev test statistics, 
+            #aiming to normalize the variance of the coefficients of the spherical harmonics to 1 when the samples are
+            #uniformly distributed on the sphere, thereby ensuring that the asymptotic null distribution conforms to
+            #a chi-squared distribution.
             G2=[beran10(j,self.kernel_size[i]).sum(1)/j.shape[-1]  for i,j in enumerate(x1_inner) ] 
 
             all_G2=torch.stack(G2,dim=1)
