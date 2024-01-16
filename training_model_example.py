@@ -18,7 +18,6 @@ from sklearn.model_selection import KFold
 from torch.utils.tensorboard import SummaryWriter   
 writer = SummaryWriter('PATH2log'+/log/')
 os.environ['CUDA_VISIBLE_DEVICES'] = "0" 
-mode='beran'
 root_dir = "PATH2DATA/alldata/"
 fs=1000
 
@@ -37,7 +36,7 @@ for mode in ['beran','gine']:
             id_data=data_inner['id']
             label=data_inner['label']
             datainner=data_inner['rr']
-            Data.append(datainner/fs)
+            Data.append(datainner/fs) # normalize RRIs in seconds
             label[label!=1]=0
             Label.append(label)        
         
@@ -60,7 +59,7 @@ for mode in ['beran','gine']:
            
        
         for k,(idxtrain,idxval) in enumerate(kf.split(indexs)):
-             model =My_net(2,  max_kernel_size=9+1, max_degree=10,mode=mode) 
+             model =My_net(len(classes),  max_kernel_size=9+1, max_degree=10,mode=mode) 
              if k==0:
                  print(util.get_parameter_number(model))
              model_inner=model.to(device)  
