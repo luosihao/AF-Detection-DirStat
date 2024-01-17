@@ -29,9 +29,7 @@ class map_radius(nn.Module):
 class My_net(nn.Module):
     def __init__(self,
                  num_classes,
-                 max_kernel_size=10,
                  max_degree=10,
-                 mode='beran'
                  ):
         super(My_net, self).__init__()
         self.num_classes=num_classes
