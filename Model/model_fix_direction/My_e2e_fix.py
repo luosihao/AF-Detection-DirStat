@@ -51,7 +51,7 @@ class My_net(nn.Module):
                                            out_channels=i* self.conv_num,
                                            kernel_size=i+1,bias=False,dilation=1) for j,i in enumerate(self.kernel_size)]  )
         # radius mapping function
-        self.simple_radius=map_radius(self.kernel_size[0],self.divide_inner) 
+        self.simple_radius=map_radius( self.conv_num,self.divide_inner) 
         self.max_degree=max_degree
         # weight on each degree of gegenbauer coef, It corresponds to high-dimensional zonal spherical convolution. 
         self.weight_a=nn.Parameter(torch.ones(self.divide*len(self.kernel_size),max_degree,self.sphere_conv))
