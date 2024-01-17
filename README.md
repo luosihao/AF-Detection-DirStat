@@ -1,6 +1,6 @@
 ## Introduction
 
-Welcome to the repository for our novel End-to-End Atrial Fibrillation Detection Model, inspired by directional statistics. This model leverages Sobolev test statistics to quantify irregularities in heart rhythms and R-R interval variability. It's designed for interpretability, computational efficiency, and excellent generalization capabilities. Our approach is detailed in our recent publication, which delves into the unique application of directional statistics for enhanced atrial fibrillation detection based on ECG rhythm.
+Welcome to the repository for our novel End-to-End Atrial Fibrillation Detection Model, inspired by directional statistics. This model leverages Sobolev test statistics to quantify irregularities and variability in  R-R intervals. It's designed for interpretability, computational efficiency, and excellent generalization capabilities. 
 
 ## Model Description
 
