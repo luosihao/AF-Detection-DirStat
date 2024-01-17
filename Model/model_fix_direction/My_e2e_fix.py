@@ -50,7 +50,7 @@ class My_net(nn.Module):
         self.conv=nn.ModuleList([nn.Conv1d(in_channels=1,
                                            out_channels=i* self.conv_num,
                                            kernel_size=i+1,bias=False,dilation=1) for j,i in enumerate(self.kernel_size)]  )
-        # list of rarius mapping function
+        # radius mapping function
         self.simple_radius=map_radius(self.kernel_size[0],self.divide_inner) 
         self.max_degree=max_degree
         # weight on each degree of gegenbauer coef, It corresponds to high-dimensional zonal spherical convolution. 
