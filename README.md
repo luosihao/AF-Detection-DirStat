@@ -24,7 +24,7 @@ The model parameters saved in `Saved_weights` are adapted for a `time_series_len
 
 If you use this model or scripts in your research, please cite our paper:
 
-Copy
+
 
 ```
 Luo, C., Zhang, K., Hu, Y., Li, X., Cao, S., Jin, Y., Ren, P., Rao, N. (2024). 
