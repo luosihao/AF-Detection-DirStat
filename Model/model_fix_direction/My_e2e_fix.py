@@ -8,7 +8,6 @@ class MLP(nn.Module):
             super(MLP, self).__init__()
             self.linear = nn.Sequential(
                 nn.Linear(input_size, input_size//2),
-
                 nn.ReLU(inplace=True),
                 nn.Linear(input_size//2  , common_size)
             )
