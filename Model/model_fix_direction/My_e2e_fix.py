@@ -54,7 +54,7 @@ class My_net(nn.Module):
         self.max_degree=max_degree
         # weight on each degree of gegenbauer coef, It corresponds to high-dimensional zonal spherical convolution. 
         self.weight_a=nn.Parameter(torch.ones(self.divide*len(self.kernel_size),max_degree,self.sphere_conv))
-        #fix directions list
+        #fix directions list, init as uniform in sphere
         self.bias_list=nn.ParameterList([nn.Parameter(torch.randn(i,self.divide))  for i in self.kernel_size])
 
     def forward(self, x):
