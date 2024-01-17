@@ -38,15 +38,14 @@ class My_net(nn.Module):
         # convolution num -> #of general poincare plot each of dimension p generate
         self.conv_num=2
         self.divide=self.conv_num* self.divide_inner
-        self.mode=mode
         # number of spherical convolution in each direction
         self.sphere_conv=2
         self.kernel_size=[2,3,9]
         self._EPSILON=1e-7
-        feature_len=self.divide*len(self.kernel_size)
+        feature_len=self.divide*len(self.kernel_size)*self.sphere_conv+ self.divide
         self.fl=feature_len
-        self.MLP=MLP(feature_len*(self.sphere_conv)+ self.divide,num_classes)   
-        self.first_bn = nn.BatchNorm1d(feature_len*(self.sphere_conv)+ self.divide,momentum=0.1)
+        self.MLP=MLP(feature_len,num_classes)   
+        self.first_bn = nn.BatchNorm1d(feature_len,momentum=0.1)
         self.conv=nn.ModuleList([nn.Conv1d(in_channels=1,
                                            out_channels=i* self.conv_num,
                                            kernel_size=i+1,bias=False,dilation=1) for j,i in enumerate(self.kernel_size)]  )
@@ -89,7 +88,7 @@ class My_net(nn.Module):
         #Figure 4 of  "Learning so (3) equivariant representations with spherical cnns" 2018: 52-68.
         #https://arxiv.org/pdf/1711.06721.pdf
         allG_Rho=all_G2.view(-1,self.divide*len(self.kernel_size),self.max_degree,1)*self.weight_a/self.weight_a.norm(dim=1,keepdim=True)
-        allG_Rho=allG_Rho.sum(dim=-2).view(-1,self.divide*len(self.kernel_size)*self.sphere_conv)
+        allG_Rho=allG_Rho.sum(dim=-2).view(-1,self.fl-self.divide)
         
         # concatenation of the mean of the mapped radius and other Gegenbauer coef as features
         allG_Rho=torch.cat([radius_mean,allG_Rho],dim=1)
