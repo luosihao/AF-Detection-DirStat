@@ -7,10 +7,10 @@ class MLP(nn.Module):
         def __init__(self, input_size, common_size):
             super(MLP, self).__init__()
             self.linear = nn.Sequential(
-                nn.Linear(input_size, input_size//4),
+                nn.Linear(input_size, input_size//2),
 
                 nn.ReLU(inplace=True),
-                nn.Linear(input_size//4  , common_size)
+                nn.Linear(input_size//2  , common_size)
             )
         def forward(self, x):
             out = self.linear(x)
@@ -36,26 +36,25 @@ class My_net(nn.Module):
                  ):
         super(My_net, self).__init__()
         self.num_classes=num_classes
-        # number of different rarius map
-        self.divide_inner=2
-        # convolution num
-        self.conv_num=4
+        # number of fix directions in each general poincare plot
+        self.divide_inner=4
+        # convolution num -> #of general poincare plot each of dimension p generate
+        self.conv_num=2
         self.divide=self.conv_num* self.divide_inner
         self.mode=mode
-        # number of spherical convolution
+        # number of spherical convolution in each direction
         self.sphere_conv=2
-        self.scalar=1
-        self.kernel_size=[3,6,9]
+        self.kernel_size=[2,3,9]
         self._EPSILON=1e-7
         feature_len=self.divide*len(self.kernel_size)
         self.fl=feature_len
-        self.MLP=MLP(feature_len*(self.sphere_conv+self.scalar),num_classes)   
-        self.first_bn = nn.BatchNorm1d(feature_len*(self.sphere_conv+self.scalar),momentum=0.1)
+        self.MLP=MLP(feature_len*(self.sphere_conv)+ self.divide,num_classes)   
+        self.first_bn = nn.BatchNorm1d(feature_len*(self.sphere_conv)+ self.divide,momentum=0.1)
         self.conv=nn.ModuleList([nn.Conv1d(in_channels=1,
                                            out_channels=i* self.conv_num,
                                            kernel_size=i+1,bias=False,dilation=1) for j,i in enumerate(self.kernel_size)]  )
         # list of rarius mapping function
-        self.simple_radius=nn.ModuleList([map_radius(self.conv_num,self.divide_inner) for i in self.kernel_size]  )
+        self.simple_radius=map_radius(self.kernel_size[0],self.divide_inner) 
         self.max_degree=max_degree
         # weight on each degree of gegenbauer coef, It corresponds to high-dimensional zonal spherical convolution. 
         self.weight_a=nn.Parameter(torch.ones(self.divide*len(self.kernel_size),max_degree,self.sphere_conv))
@@ -74,16 +73,15 @@ class My_net(nn.Module):
         #The radius is mapped to a value between 0 and 1 through a straightforward linear transformation coupled with
         #a sigmoid activation, a technique possibly best suited for RRI signals. For other types of signals, 
         #this mapping process can be adjusted to utilize a multilayer perceptron (MLP). 
-            
-        radius_mapped=[ sq(i).permute(0,3,2,1).reshape(-1,i.shape[1]) 
-                    for i,sq in zip(x1_norm, self.simple_radius)]
+        #Only the dimension p=2 is required, as it represents the most informative radius.
+        radius_mean =self.simple_radius(x1_norm[0]).mean(1).view(-1, self.divide)
             
         norm_x1=[(i/j).repeat(1,1,self.divide_inner,1) for i,j in zip(x1_dis, x1_norm)]
         x1_inner=[torch.einsum('ndsc,cs->nsd', i,j).reshape(-1,i.shape[1])
-                  for i,j in zip(norm_x1,norm_direction)]#batch,divide,time
+                  for i,j in zip(norm_x1,norm_direction)]
         
-        #using sum of radius to normalize
-        G=[Beran(j,radius_mapped[i], self.kernel_size[i], self.max_degree).h_z2()/(radius_mapped[i].sum(-1,keepdim=True) +1e-5)# 
+        
+        G=[Beran(j,1, self.kernel_size[i], self.max_degree).h_z2()/  j.shape[-1]
            for i,j in enumerate(x1_inner)] # /n
             
         all_G2=torch.stack(G,dim=1)
@@ -95,9 +93,6 @@ class My_net(nn.Module):
         #https://arxiv.org/pdf/1711.06721.pdf
         allG_Rho=all_G2.view(-1,self.divide*len(self.kernel_size),self.max_degree,1)*self.weight_a/self.weight_a.norm(dim=1,keepdim=True)
         allG_Rho=allG_Rho.sum(dim=-2).view(-1,self.divide*len(self.kernel_size)*self.sphere_conv)
-        
-        # the mean of the mapped radius, equal to frequency=0 or degree=0 of Gegenbauer coef
-        radius_mean=torch.stack([i.mean(-1)for i in radius_mapped],dim=1).view(-1,self.divide*len(self.kernel_size))
         
         # concatenation of the mean of the mapped radius and other Gegenbauer coef as features
         allG_Rho=torch.cat([radius_mean,allG_Rho],dim=1)
