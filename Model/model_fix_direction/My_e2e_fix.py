@@ -37,18 +37,18 @@ class My_net(nn.Module):
         self.divide_inner=4
         # convolution num -> #of general poincare plot each of dimension p generate
         self.conv_num=2
-        self.divide=self.conv_num* self.divide_inner
         # number of spherical convolution in each direction
         self.sphere_conv=2
         self.kernel_size=[2,3,9]
         self._EPSILON=1e-7
+        self.divide=self.conv_num* self.divide_inner
         feature_len=len(self.kernel_size)*self.divide**self.sphere_conv+ self.divide
         self.fl=feature_len
         self.MLP=MLP(feature_len,num_classes)   
         self.first_bn = nn.BatchNorm1d(feature_len,momentum=0.1)
         self.conv=nn.ModuleList([nn.Conv1d(in_channels=1,
                                            out_channels=i* self.conv_num,
-                                           kernel_size=i+1,bias=False,dilation=1) for j,i in enumerate(self.kernel_size)]  )
+                                           kernel_size=i+1,bias=False) for j,i in enumerate(self.kernel_size)]  )
         # radius mapping function
         self.simple_radius=map_radius( self.conv_num,self.divide_inner) 
         self.max_degree=max_degree
