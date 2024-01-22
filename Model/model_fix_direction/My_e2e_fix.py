@@ -42,7 +42,7 @@ class My_net(nn.Module):
         self.kernel_size=[2,3,9]
         self._EPSILON=1e-7
         self.divide=self.conv_num* self.divide_inner
-        feature_len=len(self.kernel_size)*self.divide**self.sphere_conv+ self.divide
+        feature_len=len(self.kernel_size)*self.divide*self.sphere_conv+ self.divide
         self.fl=feature_len
         self.MLP=MLP(feature_len,num_classes)   
         self.first_bn = nn.BatchNorm1d(feature_len,momentum=0.1)
